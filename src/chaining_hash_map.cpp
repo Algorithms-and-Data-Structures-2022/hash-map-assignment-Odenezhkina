@@ -34,6 +34,9 @@ namespace assignment {
 
     // Tips:
     // 1. Если ключ уже содержится в словаре, то возвращаем false.
+    if (Contains(key)) {
+      return false;
+    }
     // 2. Вычисляем индекс ячейки словаря при помощи хеш-функции.
     // 3. Добавляем "ключ-значение" в найденную ячейку словаря.
     // 4. Увеличиваем кол-во ключей в словаре.
@@ -47,9 +50,11 @@ namespace assignment {
     // добавление пары "ключ-значение" в ячейку словаря (в конец связного списка)
     buckets_[index].push_back(Node(key, value));
 
+    num_keys_++;
+
     // расширение словаря до новой емкости в случае превышения коэффициента заполнения
     if (num_keys_ / static_cast<double>(buckets_.size()) > load_factor_) {
-      const int new_capacity = 0 /* здесь должна быть ваше выражение */;
+      const int new_capacity = kGrowthCoefficient * capacity() /* здесь должна быть ваше выражение */;
       resize(new_capacity);
     }
 
@@ -58,7 +63,7 @@ namespace assignment {
 
   std::optional<int> ChainingHashMap::Remove(int key) {
 
-    const int index = 0 /* напишите здесь свой код */;
+    const int index = hash(key, buckets_.size()); /* напишите здесь свой код */
 
     // здесь используется итератор (по сути указатель на узел списка)
     for (auto it = buckets_[index].begin(); it != buckets_[index].end(); ++it) {
@@ -81,14 +86,16 @@ namespace assignment {
   std::optional<int> ChainingHashMap::Search(int key) const {
 
     // вычисление индекса ячейки для указанного ключа
-    const int index = 0 /* напишите здесь свой код */;
+    const int index = hash(key, buckets_.size()); /* напишите здесь свой код */
 
     // Проходимся по всем элемента в ячейке словаря.
     // В худшем случае все элементы попали в одну ячейку словаря и сложность поиска ~ O(N).
     for (const Node& node : buckets_[index]) {
       // напишите здесь свой код ...
+      if (key == node.key) {
+        return node.value;
+      }
     }
-
     return std::nullopt;
   }
 
@@ -105,41 +112,45 @@ namespace assignment {
 
   bool ChainingHashMap::Contains(int key) const {
     // Напишите здесь свой код ...
-    return false;
+    if (Search(key) != std::nullopt) {
+      return true;
+    }else{
+      return false;
+    }
   }
 
-  bool ChainingHashMap::IsEmpty() const {
-    return num_keys_ == 0;
-  }
-
-  int ChainingHashMap::capacity() const {
-    return buckets_.size();
-  }
-
-  int ChainingHashMap::size() const {
-    return num_keys_;
-  }
-
-  double ChainingHashMap::load_factor() const {
-    return load_factor_;
-  }
-
-  void ChainingHashMap::resize(int new_capacity) {
-    assert(new_capacity > buckets_.size());
-
-    // создаем новый словарь большего размера
-    auto new_buckets = std::vector<Bucket>(new_capacity);
-
-    // пересчитываем индексы элементов словаря, учитывая новую емкость
-    for (const Bucket& bucket : buckets_) {
-      for (const Node& node : bucket) {
-        const int new_index = 0 /* напишите здесь свой код */;
-        new_buckets[new_index].push_back(node);
-      }
+    bool ChainingHashMap::IsEmpty() const {
+      return num_keys_ == 0;
     }
 
-    // обновляем поле (перемещаем данные из new_buckets в buckets_)
-    buckets_ = std::move(new_buckets);
-  }
+    int ChainingHashMap::capacity() const {
+      return buckets_.size();
+    }
 
-}  // namespace assignment
+    int ChainingHashMap::size() const {
+      return num_keys_;
+    }
+
+    double ChainingHashMap::load_factor() const {
+      return load_factor_;
+    }
+
+    void ChainingHashMap::resize(int new_capacity) {
+      assert(new_capacity > buckets_.size());
+
+      // создаем новый словарь большего размера
+      auto new_buckets = std::vector<Bucket>(new_capacity);
+
+      // пересчитываем индексы элементов словаря, учитывая новую емкость
+      for (const Bucket& bucket : buckets_) {
+        for (const Node& node : bucket) {
+          const int new_index = 0 /* напишите здесь свой код */;
+          new_buckets[new_index].push_back(node);
+        }
+      }
+
+      // обновляем поле (перемещаем данные из new_buckets в buckets_)
+      buckets_ = std::move(new_buckets);
+    }
+
+  }  // namespace assignment
